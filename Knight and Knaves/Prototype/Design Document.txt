@@ -1,0 +1,74 @@
+Overview:
+
+This document explains the working of the Knights-and-Knave puzzle generator. On an abstract level, the puzzle generator makes use of Genetic Algorithm to come up with puzzles (represented in Boolean equation) from a randomly selected solution. The Boolean equation is then translated into verbal format through some fixed predefined rules. For simplicity purposes complex sentence formations are avoided and simple sentences are used. The document contains 4 sections: Section 1 talks about the terminologies, notations and assumptions used in the project. Section 2 and 3 talk about the important methods / functions / data structures used in the project and about algorithms and processes used in the project. The last section describes how to run the puzzle generator on a local machine.
+
+Important Methods / Data structure
+
+- fn: create_boolean_question˜
+    Main function that creates boolean equation(a logical representation of question). Runs the genetic algorithm and converts the logically coorect bool equation according to the claims of knights and knaves(i.e. Knaves always lie, thus their bool claims are negated).
+
+- fn: equation_to_sent
+    converts logical boolean equation to verbal representation. Follows ceratain set of rules that translate bool to natural language.
+
+- cl: Genome
+    class object that hold individual Genome, and its functions. Each member of population is a <Genome obj>. The genome basically contain boolean equation that might be a potential questin to the assumed knights and knave combination..
+
+    - fn: calculate_fitness
+        based on the truth values<knight and knave combination> for varaibles in bool equation as compared to the desired truth value of the solution, this function gives score to each Genome obj, paradoxical equations, equations with multiple and no solution are given a comaparatively lower score. Each truth value combination that satisfies the <Genom obj>e equation is cosidered to be contributing to its fitness score. Hamming distance of 0  between the truth value combination and assumed answer<knight and knave combination> is given the highest score (3)  and hamming distance of 3(for 3 inhabitants) is give a -3 score.
+
+    - fn: crossover
+        Uses one point crossover method within a block. Randomly selects if a block must undergo crossover or not. Each genome is randomly chosen with another randomly chosen Genome from <selected> list. Each crossover operation yield 2 child Genomes.
+
+    - fn: mutate
+        Uses single point mutation over entire Equation and ensures paradoxes are not created while mutating.
+
+- fn: make_random_block
+    For 3 inhabitants, randomly choses 3 variables from list of ['A', 'B', 'C', '1', '1'], where '1' is a placeholder for consistency purposes. Then it randomly negates variables and selects among operators ['|', '&']. This forms a block that represents a claim by a single inhabitant in a question.
+- fn: evaluate
+    Evaluates a boolean equation by removing placeholders, substituting truth values for variables and operating based on logical operators. Returns a True or False value.
+
+- fn: SUS, RWS
+    SUS - Stochastic Universal Sampling, RWS - Roulette Wheel Selection. Sampling and selection methods for crossover. (Wikipedia offers a more indepth explanation of these algorithms)
+
+- ds: truth_values
+    The project works on certain assumption for adequate representation of puzzle in terms of boolean equation. Knights : True, Knave: False, 'A' by default represents, 1st inhabitant as Knight, '-A' by default represents 1st inhabitant as Knave.
+
+- ds: population
+    It is a list of all genomes.
+
+
+Terminologies
+
+ANSWER - variable containing Selected Genome obj after Genetic Algorithm runs
+
+QUESTION - variable containing the final Genome obj with actual actial question represented as boolean equation.
+
+FLow Diagram:
+1. Generate btn<html> create an AJAX url request to flask_server
+2. Flask server runs internal_function.
+3. Call generate_boolean_equation function.
+3.1. set global varaibles/ control parameters
+3.2. Randomly assign Knightss and Knave value<theory>
+3.3. Generate a starting population
+3.4. Start loop
+3.4.1. Calculate fitness of each individual in population˜
+3.4.2. Pick elites based on the fitness score
+3.4.3. Check for solution in the elites, If found, exit loop
+4.3.5. If Answer not found, select population for breeding
+4.3.6. Crossover existing population to create childs
+4.3.7. Randomly mutate
+4.3.8. Elite, children and new_randomly generate individual form the next generation
+4.3.9. Repeat steps 3.4.1 to 3.4.8
+3.5. Based on knights and knave value negate the boolean equation for knaves
+3.6. return new equation as QUESTION<Genome obj>
+4. Randomly assign names to variables
+5. Call generate_question function
+5.1. Compile The question using standard, introduction, and names
+5.2. for each block* call equation_to_sent function
+5.2.1. Remove '1'(placeholders)
+5.2.2. Based on variables left in the block, follow sepearte set of rules to complile sentence.
+5.2.3. Return string value consisiting of verbal representation of boolean equatioon
+6. Wrap answer in json format and return it back to the html page.
+7. Display the result
+
+
